@@ -5,13 +5,13 @@ import ToDo from './ToDo';
 function ToDoList() {
   const [todos, setTodos] = useState([]);
 
-  // useEffect(() => {
-  //   const getInit = async () => {
-  //     const initTodos = await await fetch("http://localhost:4000/getInit");
-  //     setTodos(initTodos)
-  //   }
-  //   getInit()
-  // }, [])
+  useEffect(() => {
+    const getInit = async () => {
+      const initTodos = await await fetch("http://localhost:4000/getInit");
+      setTodos(initTodos)
+    }
+    getInit()
+  }, [])
 
 
   const addToDo = todo => {
