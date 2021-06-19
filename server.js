@@ -8,6 +8,7 @@ const path = require('path');
 // App ~uses~
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static('build'))
 mongoose.set('useFindAndModify', false);
 
@@ -15,13 +16,14 @@ mongoose.set('useFindAndModify', false);
 //Exports
 const todo = require('./schemas/todolist')
 
+dataBaseUrl = 'mongodb+srv://pucika2k:199313002k@cluster0.71gkv.mongodb.net/todolist?retryWrites=true&w=majority'
 
-const mongoDBUrl = 'mongodb+srv://pucika2k:199313002k@cluster0.71gkv.mongodb.net/todolist?retryWrites=true&w=majority'
-mongoose.connect(process.env.PORT.mongoDBUrl || mongoDBUrl, {
+mongoose.connect(process.env.dataBaseUrl || dataBaseUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
 });
+
 
 
 const db = mongoose.connection;
@@ -55,31 +57,49 @@ app.get("/getInit", async (req, res) => {
 app.post("/addTodo", async (req, res) => {
     var newlist = new todo({
         text: req.body.todo.text,
-        id: req.body.todo.id,
     });
     await newlist.save(function (err) {
         if (err) {
             console.error(err)
         } else {
-            console.log(newlist)
+            getCurrentList(res)
         }
     });
-    getCurrentList(res)
+})
+app.post("/searchOne", async (req, res) => {
+    console.log(req.body.todo)
+    await todo.findOne({ text: req.body.todo.text }, function (err, result) {
+        if (err) {
+            console.log(err)
+        } else {
+            res.send(result);
+        }
+    });
 })
 
 app.post("/removeTodo", async (req, res) => {
     console.log(req.body)
-    await todo.findOneAndDelete({ id: req.body.id }, function (err) {
+    await todo.findOneAndDelete({ _id: req.body._id }, function (err) {
         if (err) console.log(err);
         console.log("Successful deletion");
     });
     getCurrentList(res)
 })
+app.post("/sortDate", async (req, res) => {
+    console.log(req.body.sort)
+    todo.find({}).sort({ date: req.body.sort }).exec((err, result) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.send(result);
+        }
+    });
+})
 
 
 app.post("/editTodo", async (req, res) => {
     console.log(req.body)
-    await todo.findOneAndUpdate({ id: req.body.todoId }, { text: req.body.newValue.text }, {
+    await todo.findOneAndUpdate({ _id: req.body._id }, { text: req.body.newValue.text }, {
         returnOriginal: false
     });
     getCurrentList(res)

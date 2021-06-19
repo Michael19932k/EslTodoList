@@ -2,10 +2,6 @@ const mongoose = require('mongoose');
 
 
 const todolist = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true
-    },
     text: {
         type: String,
         required: true
