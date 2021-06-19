@@ -5,21 +5,18 @@ import ToDo from './ToDo';
 function ToDoList() {
   const [todos, setTodos] = useState([]);
 
-  // useEffect(() => {
-  //   const getInit = async () => {
-  //     const initTodos = await fetch("http://localhost:4000/getInit");
-  //     setTodos(initTodos)
-  //   }
-  //   getInit()
-  // }, [])
-
+  useEffect(() => {
+    fetch("http://localhost:4000/getInit")
+      .then(res => res.json())
+      .then(res => {
+        setTodos(res)
+      })
+  }, [])
 
   const addToDo = todo => {
     if (!todo.text || /^\s*$/.test(todo.text)) {
       return;
     }
-    console.log(...todos);
-
     fetch("/addTodo", {
       method: 'POST',
       body: JSON.stringify({ todo }),
@@ -28,21 +25,49 @@ function ToDoList() {
       }
     }).then(res => res.json())
       .then(res => {
-        console.log(res)
+        setTodos(res)
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  const searchOneToDo = todo => {
+    if (!todo.text || /^\s*$/.test(todo.text)) {
+      return;
+    }
+    fetch("/searchOne", {
+      method: 'POST',
+      body: JSON.stringify({ todo }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json())
+      .then(res => {
+        setTodos([res])
+      })
+      .catch(error => console.error('Error:', error));
+  }
+  const sortDate = sort => {
+    fetch("/sortDate", {
+      method: 'POST',
+      body: JSON.stringify({ sort }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json())
+      .then(res => {
         setTodos(res)
       })
       .catch(error => console.error('Error:', error));
   }
 
 
-  const updateToDo = (todoId, newValue) => {
+  const updateToDo = (_id, newValue) => {
     if (!newValue.text || /^\s*$/.test(newValue.text)) {
       return;
     }
-    console.log(newValue)
     fetch("/editTodo", {
       method: 'POST',
-      body: JSON.stringify({ todoId, newValue }),
+      body: JSON.stringify({ _id, newValue }),
       headers: {
         'Content-Type': 'application/json'
       }
@@ -52,45 +77,35 @@ function ToDoList() {
       })
       .catch(error => console.error('Error:', error));
 
-    setTodos(prev => prev.map(item => (item.id === todoId ? newValue : item)));
+    setTodos(prev => prev.map(item => (item._id === todos._id ? newValue : item)));
   };
 
-  const removeToDo = id => {
+  const removeToDo = _id => {
 
     fetch("/removeTodo", {
       method: 'POST',
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ _id }),
       headers: {
         'Content-Type': 'application/json'
       }
     }).then(res => res.json())
       .then(res => {
-        console.log(res)
         setTodos(res)
       })
       .catch(error => console.error('Error:', error));
-
-
   };
 
-  const completeToDo = id => {
-    let updatedTodos = todos.map(todo => {
-      if (todo.id === id) {
-        console.log(todo.isComplete)
-        todo.isComplete = !todo.isComplete;
-      }
-      return todo;
-    });
-    setTodos(updatedTodos);
-  };
 
   return (
     <>
-      <h1>What's the Plan for Today?</h1>
-      <ToDoForm onSubmit={addToDo} />
+      <h1>Your to do list</h1>
+      <ToDoForm
+        onAddSubmit={addToDo}
+        onSearchSubmit={searchOneToDo}
+        onSortDate={sortDate}
+      />
       <ToDo
         todos={todos}
-        completeToDo={completeToDo}
         removeToDo={removeToDo}
         updateToDo={updateToDo}
       />

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 function ToDoForm(props) {
   const [input, setInput] = useState(props.edit ? props.edit.value : '');
+  const [sort, setSort] = useState(true);
 
   const inputRef = useRef(null);
 
@@ -12,15 +13,36 @@ function ToDoForm(props) {
   const handleChange = e => {
     setInput(e.target.value);
   };
+  const handleSort = e => {
+    setSort(!sort)
+    if (sort) {
+      props.onSortDate('desc')
+    }else{
+      props.onSortDate('asc')
+    }
+  };
 
   const handleSubmit = e => {
     e.preventDefault();
-
-    props.onSubmit({
-      id: Math.floor(Math.random() * 10000),
+    if (e.target.className=== "todo-button add") {
+      props.onAddSubmit({
       text: input
     });
+
     setInput('');
+    }
+    if (e.target.className=== "todo-button search") {
+      props.onSearchSubmit({
+        text: input
+      });
+      setInput('');
+    }
+    if (e.target.className=== "todo-button edit") {
+      props.submitUpdate({
+        text: input
+      });
+      setInput('');
+    }
   };
 
   return (
@@ -40,8 +62,8 @@ function ToDoForm(props) {
           </button>
         </>
       ) : (
-        <>
-          <input  
+        <div className='buttonContainer'>
+          <input
             placeholder='Add a todo'
             value={input}
             onChange={handleChange}
@@ -49,10 +71,16 @@ function ToDoForm(props) {
             className='todo-input'
             ref={inputRef}
           />
-          <button onClick={handleSubmit} className='todo-button'>
-            Add todo
+          <button onClick={handleSubmit} className='todo-button add'>
+            Add Todo
           </button>
-        </>
+          <button onClick={handleSubmit} className='todo-button search'>
+            Search Todo
+          </button>
+          <button onClick={handleSort} className='todo-button sort'>
+            Sort By Date
+          </button>
+        </div>
       )}
     </form>
   );

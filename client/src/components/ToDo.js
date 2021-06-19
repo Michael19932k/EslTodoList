@@ -28,25 +28,24 @@ const ToDo = ({ todos, completeToDo, removeToDo, updateToDo }) => {
     };
 
     if (edit.id) {
-        return <ToDoForm edit={edit} onSubmit={submitUpdate} />;
+        return <ToDoForm edit={edit} submitUpdate={submitUpdate} />;
     }
 
     return todos.map((todo, index) => (
-
         <div
             className={todo.isComplete ? 'todo-row complete' : 'todo-row'}
             key={index}
         >
-            <div key={todo.id} onClick={() => completeToDo(todo.id)}>
+            <div key={todo._id}>
                 {todo.text}
                 {"  "}
                 {betterDate(todo.date)}
             </div>
-            <div className='icons'>
-                <div onClick={() => removeToDo(todo.id)} className='delete-icon'>
+            <div className='actionButtons'>
+                <div onClick={() => removeToDo(todo._id)} className='delete-button'>
                     Delete
                 </div>
-                <div onClick={() => setEdit({ id: todo.id, value: todo.text })} className='edit-icon'>
+                <div onClick={() => setEdit({ id: todo._id, value: todo.text })} className='edit-button'>
                     Edit
                 </div>
             </div>
