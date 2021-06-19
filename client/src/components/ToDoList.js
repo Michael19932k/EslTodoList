@@ -6,7 +6,7 @@ function ToDoList() {
   const [todos, setTodos] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:4000/getInit")
+    fetch("/getInit")
       .then(res => res.json())
       .then(res => {
         setTodos(res)
